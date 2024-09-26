@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Яндекс.Карты с вебсокетами</title>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 360px;
+        }
+        .custom-icon {
+            width: 2px;
+            height: 2px;
+            background-color: #1E98FF;
+            border-radius: 50%;
+            border: 1px solid #fff;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        ymaps.ready(init);
+        let socket;
+
+        function init() {
+            let lowerLeft = [55.77, 37.60];
+            let upperRight = [55.78, 37.63];
+
+            // Рассчитываем центр карты
+            let centerLatitude = (lowerLeft[0] + upperRight[0]) / 2;
+            let centerLongitude = (lowerLeft[1] + upperRight[1]) / 2;
+            let center = [centerLatitude, centerLongitude];
+
+            // Создаем карту с рассчитанным центром
+            let myMap = new ymaps.Map("map", {
+                center: center,
+                zoom: 10
+            });
+
+            // Устанавливаем границы карты
+            myMap.setBounds([lowerLeft, upperRight]);
+
+            let coordinates = [];
+            let polyline = new ymaps.Polyline([], {}, {
+                strokeColor: "#FF0000",
+                strokeWidth: 4
+            });
+            myMap.geoObjects.add(polyline);
+
+            socket = new WebSocket('ws://localhost:8765/');
+
+            socket.onopen = () => {
+            console.log("Соединение с картой установлено");
+            socket.send(JSON.stringify({ action: "map_load" }));
+            };
+
+            socket.onmessage = function(event) {
+                let data = JSON.parse(event.data);
+                let newPoint = [data.latitude, data.longitude];
+                coordinates.push(newPoint);
+
+                let customIconContentLayout = ymaps.templateLayoutFactory.createClass(
+                    '<div class="custom-icon"></div>'
+                );
+
+                let placemark = new ymaps.Placemark(newPoint, {}, {
+                    iconLayout: 'default#imageWithContent',
+                    iconContentLayout: customIconContentLayout,
+                    iconImageSize: [2, 2],
+                    iconImageOffset: [-2, -2]
+                });
+                myMap.geoObjects.add(placemark);
+
+                polyline.geometry.setCoordinates(coordinates);
+            };
+
+            socket.onclose = () => {
+            console.log("Соединение разорвано. Повторное переподключение через 5 секунд...");
+            setTimeout(connect, 5000);
+            };
+
+            socket.onerror = (error) => {
+            console.log("Ошибка WebSocket: ", error);
+            socket.close();
+            };
+        }
+    </script>
+</body>
+</html>
