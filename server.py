@@ -1,14 +1,12 @@
 import asyncio
 import websockets
 import json
-import logging
-
 from websockets.exceptions import ConnectionClosedError
 from websockets import WebSocketServerProtocol
+from type_flying import *
+from drone_proxy import *
 
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 drones = [
     {"id": "drone1", "name": "Дрон 1"},
     {"id": "drone2", "name": "Дрон 2"},
@@ -48,8 +46,6 @@ async def control_drone(websocket: WebSocketServerProtocol):
                         for key_drone, client_value in drones_locks.items():
                             if client_value == client_id:
                                 drones_to_delete.append(key_drone)
-                                # del drones_locks[key]
-                                # logging.info(f"Замена дрона {key_drone} на {selected_drone} в блокировке.")
                     if drones_to_delete:
                         for key_drone in drones_to_delete:
                             del drones_locks[key_drone]
@@ -58,17 +54,14 @@ async def control_drone(websocket: WebSocketServerProtocol):
                                 json.dumps({"response": f"Отменён выбор дрона {key_drone}"}))
                     drones_locks[drone_id] = client_id
                     await websocket.send(json.dumps({"response": f"Выбран дрон {selected_drone}. Открыт доступ к управлению"}))
-                    # await websocket.send(f"Выбран дрон {selected_drone}. Открыт доступ к управлению")
                 else:
                     client_locked = drones_locks[drone_id]
                     if client_locked == client_id:
                         await websocket.send(
                             json.dumps({"response": f"Вы уже управляете дроном {selected_drone}"}))
-                        # await websocket.send(f"Вы уже управляете дроном {selected_drone}!")
                     else:
                         await websocket.send(
                             json.dumps({"response": f"Дрон {drone_id} уже занят другим оператором"}))
-                        # await websocket.send(f"Дрон {drone_id} уже занят другим оператором")
             elif msg.startswith("get_drones"):
                 logging.info(f"Сервер для {client_id} отправил drones")
                 await websocket.send(json.dumps(drones))
@@ -77,13 +70,11 @@ async def control_drone(websocket: WebSocketServerProtocol):
                 logging.info(f"{client_id} отправил команду для дрона {selected_drone}: {msg}")
                 response = command.get(msg, "Неизвестная команда")
                 await websocket.send(json.dumps({"response": response}))
-                # await websocket.send(response)
             elif "map_load" in msg:
                 await send_coordinates(websocket)
             else:
                 logging.info(f"{client_id} отправил неизвестную команду: {msg}")
                 await websocket.send(json.dumps({"response": f"Сначала выбери дрон!"}))
-                # await websocket.send("Сначала выбери дрон!")
 
     except ConnectionClosedError as e:
         logging.warning(f"Соединение с клиентом {client_id} закрыто: {e}")
@@ -95,25 +86,36 @@ async def control_drone(websocket: WebSocketServerProtocol):
             logging.info(f"Освобожден дрон {selected_drone}")
 
 async def send_coordinates(websocket: WebSocketServerProtocol):
-    coordinates = [
-        {"latitude": 55.772, "longitude": 37.604},
-        {"latitude": 55.773, "longitude": 37.605},
-        {"latitude": 55.778, "longitude": 37.606},
-        {"latitude": 55.7782, "longitude": 37.614},
-        {"latitude": 55.7787, "longitude": 37.615},
-        {"latitude": 55.7788, "longitude": 37.6276},
-        # Добавьте больше координат по мере необходимости
-    ]
+
+    # coordinates = spiral_flying(55.76, 37.60, 55.88, 37.84)
+    # linear_flying(min_lat, min_lon, max_lat, max_lon)
+    # coordinates = linear_flying(55.76, 37.60, 55.88, 37.84)
+    real_drone = DJIDrone()
+    drone = DJIDroneProxy(real_drone)
+    drone.connect()
+    await asyncio.sleep(0.4)
+    # time.sleep(1)
+    drone.arm()
+    await asyncio.sleep(0.4)
+    # time.sleep(1)
+    altitude = 20
+    drone.takeoff()
+    await asyncio.sleep(0.4)
+    # time.sleep(2)
+
+    coordinates = zigzag_flying(55.76, 37.60, 55.88, 37.84)
+    print(len(coordinates))
 
     for coord in coordinates:
+        control_coordinates(coord["latitude"], coord["longitude"], altitude, drone)
         await websocket.send(json.dumps(coord))
-        print(f"Отправка координаты {coord}")
-        await asyncio.sleep(2)  # Отправка новой координаты каждую вторую секунду
+        # print(f"Отправка координаты {(coord["latitude"], coord["longitude"])}")
+        await asyncio.sleep(0.4)  # Отправка новой координаты c задержкой для симуляции выполнения операции
+    drone.land()
 
 async def main():
     logging.info(f"Сервер запущен и ожидает подключений")
     start_server = await websockets.serve(control_drone, "localhost", 8765)
-    # start_server = await websockets.serve(handler, "localhost", 8765)
 
     try:
         await start_server.wait_closed()
@@ -125,8 +127,6 @@ async def main():
         start_server.close()
         await start_server.wait_closed()
         logging.error(f"Сервер завершил работу")
-
-
 
 if __name__ == '__main__':
     asyncio.run(main())
