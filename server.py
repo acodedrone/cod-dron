@@ -101,7 +101,6 @@ async def control_drone(websocket: WebSocketServerProtocol):
             logging.info(f"Освобожден дрон {selected_drone}")
 
 async def demo_mission(selected_drone, websocket, type_mission):
-    print(selected_drone)
     client_drone = Drone(selected_drone)
     # Создание экземпляра фабрики для подключения к SQLite
     factory = SQLiteDBFactory()
@@ -111,7 +110,13 @@ async def demo_mission(selected_drone, websocket, type_mission):
         try:
             drone_repository = SQLiteIDroneRepository(conn)
             real_drone = drone_repository.get_drone_sn(client_drone)
-            websocket_map = drones_locks["client_map_yandex"]
+            websocket_map = drones_locks.get("client_map_yandex")
+            if websocket_map:
+                await send_commands(websocket_map, websocket, real_drone, type_mission)
+            else:
+                logging.warning("Ключ 'client_map_yandex' отсутствует в словаре drones_locks")
+                await websocket.send(json.dumps({"response": "Миссия завершена. Нет подключения к карте."}))
+                return
             await send_commands(websocket_map, websocket, real_drone, type_mission)
         except sqlite3.IntegrityError as e:
             logging.warning(f"Ошибка! {e}")
