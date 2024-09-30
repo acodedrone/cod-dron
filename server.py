@@ -3,21 +3,31 @@ import websockets
 import json
 from websockets.exceptions import ConnectionClosedError
 from websockets import WebSocketServerProtocol
-from type_flying import *
-from drone_proxy import *
 
+from git.type_flying import *
+from git.drone_proxy import *
+from git.db.IDR_class import *
+from git.db.db_factory import *
 
-drones = [
-    {"id": "drone1", "name": "Дрон 1"},
-    {"id": "drone2", "name": "Дрон 2"},
-    {"id": "drone3", "name": "Дрон 3"},
-    {"id": "drone4", "name": "Дрон 4"},
-    {"id": "drone6", "name": "Дрон 6"}
-]
 
 drones_locks = {}
+proxy_coordinates = []
 
-clients = {}
+async def get_drones():
+    list_drones = []
+    # Создание экземпляра фабрики для подключения к SQLite
+    factory = SQLiteDBFactory()
+    conn = factory.connect(path_to_db='db/drones_tbl.db')  # Подключение к базе данных в файле
+    if conn:
+        logging.info("Соединение SQLiteDBFactory используется")
+        try:
+            drone_repository = SQLiteIDroneRepository(conn)
+            for drone in drone_repository.get_drones():
+                list_drones.append({"id": drone.serial_number,
+                                    "name": f"{drone.model} {drone.year}"})
+        except sqlite3.IntegrityError as e:
+            logging.warning(f"Ошибка! {e}")
+    return list_drones
 
 async def control_drone(websocket: WebSocketServerProtocol):
     client_ip = websocket.remote_address[0]
@@ -64,14 +74,19 @@ async def control_drone(websocket: WebSocketServerProtocol):
                             json.dumps({"response": f"Дрон {drone_id} уже занят другим оператором"}))
             elif msg.startswith("get_drones"):
                 logging.info(f"Сервер для {client_id} отправил drones")
+                drones = await get_drones()
                 await websocket.send(json.dumps(drones))
             elif selected_drone:
-                # Теперь команды отправляются без указания дрона, так как он уже выбран
-                logging.info(f"{client_id} отправил команду для дрона {selected_drone}: {msg}")
-                response = command.get(msg, "Неизвестная команда")
+                if msg == "zigzag":
+                    await demo_mission(selected_drone, websocket, msg)
+                    response = "Миссия завершена успешно"
+                else:
+                    # Теперь команды отправляются без указания дрона, так как он уже выбран
+                    logging.info(f"{client_id} отправил команду для дрона {selected_drone}: {msg}")
+                    response = command.get(msg, "Неизвестная команда")
                 await websocket.send(json.dumps({"response": response}))
             elif "map_load" in msg:
-                await send_coordinates(websocket)
+                drones_locks["client_map_yandex"] = websocket
             else:
                 logging.info(f"{client_id} отправил неизвестную команду: {msg}")
                 await websocket.send(json.dumps({"response": f"Сначала выбери дрон!"}))
@@ -85,33 +100,61 @@ async def control_drone(websocket: WebSocketServerProtocol):
             del drones_locks[selected_drone]
             logging.info(f"Освобожден дрон {selected_drone}")
 
-async def send_coordinates(websocket: WebSocketServerProtocol):
+async def demo_mission(selected_drone, websocket, type_mission):
+    print(selected_drone)
+    client_drone = Drone(selected_drone)
+    # Создание экземпляра фабрики для подключения к SQLite
+    factory = SQLiteDBFactory()
+    conn = factory.connect(path_to_db='db/drones_tbl.db')  # Подключение к базе данных в файле
+    if conn:
+        logging.info("Соединение SQLiteDBFactory используется")
+        try:
+            drone_repository = SQLiteIDroneRepository(conn)
+            real_drone = drone_repository.get_drone_sn(client_drone)
+            websocket_map = drones_locks["client_map_yandex"]
+            await send_commands(websocket_map, websocket, real_drone, type_mission)
+        except sqlite3.IntegrityError as e:
+            logging.warning(f"Ошибка! {e}")
+    return
 
-    # coordinates = spiral_flying(55.76, 37.60, 55.88, 37.84)
-    # linear_flying(min_lat, min_lon, max_lat, max_lon)
-    # coordinates = linear_flying(55.76, 37.60, 55.88, 37.84)
-    real_drone = DJIDrone()
+async def send_commands(websocket_map: WebSocketServerProtocol,
+                        websocket_client: WebSocketServerProtocol,
+                        real_drone, type_mission):
     drone = DJIDroneProxy(real_drone)
-    drone.connect()
-    await asyncio.sleep(0.4)
-    # time.sleep(1)
-    drone.arm()
-    await asyncio.sleep(0.4)
-    # time.sleep(1)
+    responses = []
+    responses += drone.connect()
+    responses += drone.arm()
     altitude = 20
-    drone.takeoff()
-    await asyncio.sleep(0.4)
-    # time.sleep(2)
-
-    coordinates = zigzag_flying(55.76, 37.60, 55.88, 37.84)
-    print(len(coordinates))
-
+    responses += drone.takeoff()
+    for response in responses:
+        await websocket_client.send(json.dumps({"response": response}))
+        await asyncio.sleep(0.4)
+    coordinates = {}
+    if type_mission == "zigzag":
+        coordinates = zigzag_flying(55.76, 37.60, 55.88, 37.84)
+    elif type_mission == "linear":
+        coordinates = linear_flying(55.76, 37.60, 55.88, 37.84)
     for coord in coordinates:
-        control_coordinates(coord["latitude"], coord["longitude"], altitude, drone)
-        await websocket.send(json.dumps(coord))
+        responses = await control_coordinates(coord["latitude"], coord["longitude"], altitude, drone)
+        for response in responses:
+            await websocket_client.send(json.dumps({"response": response}))
+            await asyncio.sleep(0.4)
+        await websocket_map.send(json.dumps(coord))
         # print(f"Отправка координаты {(coord["latitude"], coord["longitude"])}")
         await asyncio.sleep(0.4)  # Отправка новой координаты c задержкой для симуляции выполнения операции
-    drone.land()
+    responses = drone.land()
+    for response in responses:
+        await websocket_client.send(json.dumps({"response": response}))
+        await asyncio.sleep(0.4)
+    return
+
+async def control_coordinates(lat_current, lon_current, altitude, drone: DJIDroneProxy):
+    # Используем паттерн Flyweight для управления координатами
+    coordinate = CoordinateFlyweight.get_coordinate(lat_current, lon_current)
+    proxy_coordinates.append(coordinate)
+    # Управляем дроном через прокси
+    response = drone.global_position_control(lat=lat_current, lon=lon_current, alt=altitude)
+    return response
 
 async def main():
     logging.info(f"Сервер запущен и ожидает подключений")
