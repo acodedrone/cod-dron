@@ -77,7 +77,7 @@ async def control_drone(websocket: WebSocketServerProtocol):
                 drones = await get_drones()
                 await websocket.send(json.dumps(drones))
             elif selected_drone:
-                if msg == "zigzag":
+                if msg == "zigzag" or msg == "linear":
                     await demo_mission(selected_drone, websocket, msg)
                     response = "Миссия завершена успешно"
                 else:
@@ -136,9 +136,9 @@ async def send_commands(websocket_map: WebSocketServerProtocol,
         await asyncio.sleep(0.4)
     coordinates = {}
     if type_mission == "zigzag":
-        coordinates = zigzag_flying(55.76, 37.60, 55.88, 37.84)
+        coordinates = zigzag_flying(55.216189, 39.214802, 55.243758, 39.288102)
     elif type_mission == "linear":
-        coordinates = linear_flying(55.76, 37.60, 55.88, 37.84)
+        coordinates = linear_flying(55.216189, 39.214802, 55.243758, 39.288102)
     for coord in coordinates:
         responses = await control_coordinates(coord["latitude"], coord["longitude"], altitude, drone)
         for response in responses:

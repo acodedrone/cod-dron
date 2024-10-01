@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch #, MagicMock
-from git.server import control_drone  # Замените 'your_module' на имя вашего модуля
+from git.server import control_drone
 import json
 import asyncio
 import logging
