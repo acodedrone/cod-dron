@@ -24,7 +24,7 @@ async def get_drones():
             drone_repository = SQLiteIDroneRepository(conn)
             for drone in drone_repository.get_drones():
                 list_drones.append({"id": drone.serial_number,
-                                    "name": f"{drone.model} {drone.year}"})
+                                    "name": f"{drone.model} {drone.year}/0{drone.id}"})
         except sqlite3.IntegrityError as e:
             logging.warning(f"Ошибка! {e}")
     return list_drones
@@ -77,12 +77,12 @@ async def control_drone(websocket: WebSocketServerProtocol):
                 drones = await get_drones()
                 await websocket.send(json.dumps(drones))
             elif selected_drone:
+                # Теперь команды отправляются без указания дрона, так как он уже выбран
+                logging.info(f"{client_id} отправил команду для дрона {selected_drone}: {msg}")
                 if msg == "zigzag" or msg == "linear":
                     await demo_mission(selected_drone, websocket, msg)
                     response = "Миссия завершена успешно"
                 else:
-                    # Теперь команды отправляются без указания дрона, так как он уже выбран
-                    logging.info(f"{client_id} отправил команду для дрона {selected_drone}: {msg}")
                     response = command.get(msg, "Неизвестная команда")
                 await websocket.send(json.dumps({"response": response}))
             elif "map_load" in msg:
@@ -117,7 +117,6 @@ async def demo_mission(selected_drone, websocket, type_mission):
                 logging.warning("Ключ 'client_map_yandex' отсутствует в словаре drones_locks")
                 await websocket.send(json.dumps({"response": "Миссия завершена. Нет подключения к карте."}))
                 return
-            await send_commands(websocket_map, websocket, real_drone, type_mission)
         except sqlite3.IntegrityError as e:
             logging.warning(f"Ошибка! {e}")
     return

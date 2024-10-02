@@ -29,6 +29,7 @@ def spiral_flying(min_lat, min_lon, max_lat, max_lon): # , altitude, drone: DJID
 
 def linear_flying(min_lat, min_lon, max_lat, max_lon): # , altitude, drone: DJIDroneProxy):
     coordinates = []
+    coordinates.append({"latitude": min_lat, "longitude": min_lon})
     # Количество линий по ширине и длине области полета
     num_lines = 8
     # Создание массивов координат
@@ -44,10 +45,12 @@ def linear_flying(min_lat, min_lon, max_lat, max_lon): # , altitude, drone: DJID
             # Снизу вверх
             for lat in reversed(latitudes):
                 coordinates.append({"latitude": float(lat), "longitude": float(lon)})
+    coordinates.append({"latitude": min_lat, "longitude": min_lon})
     return coordinates
 
 def zigzag_flying(min_lat, min_lon, max_lat, max_lon): # , altitude, drone: DJIDroneProxy):
     coordinates = []
+    coordinates.append({"latitude": min_lat, "longitude": min_lon})
     # Количество линий по ширине и длине области полета
     num_lines = 8
     # Создание массивов координат
@@ -69,4 +72,5 @@ def zigzag_flying(min_lat, min_lon, max_lat, max_lon): # , altitude, drone: DJID
                                         "longitude": float(longitudes[i])})
                 coordinates.append({"latitude": float(latitudes[num_lines - 1 - j]),
                                     "longitude": float(longitudes[i + 1])})
+    coordinates.append({"latitude": min_lat, "longitude": min_lon})
     return coordinates

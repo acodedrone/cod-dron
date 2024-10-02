@@ -19,7 +19,7 @@ class DJIDroneProxy:
 
     def global_position_control(self, lat=None, lon=None, alt=None):
         # Логирование запроса на перемещение
-        response = [f"Запрос на перемещение к широте: {lat:.6f}, долготе: {lon:.6f}, высоте: {alt:.2f}"]
+        response = [f"Запрос на перемещение к точке: ({lat:.6f}, {lon:.6f}), высота: {alt:.2f}"]
         print(f"Запрос на перемещение к широте: {lat:.6f}, долготе: {lon:.6f}, высоте: {alt:.2f}")
         # Обращаемся к реальному дрону через его SDK
         response.append(self._real_drone.global_position_control(lat, lon, alt))
