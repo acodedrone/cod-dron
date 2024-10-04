@@ -1,0 +1,136 @@
+
+class Drone:
+    """
+    Класс, представляющий дрон.
+
+    Атрибуты:
+    tbl_drones_cols (list): Список столбцов таблицы дронов.
+    id (int, optional): Идентификатор дрона.
+    serial_number (str): Серийный номер дрона.
+    model (str, optional): Модель дрона.
+    manufacturer (str, optional): Производитель дрона.
+    max_altitude (float, optional): Максимальная высота полета.
+    max_speed (float, optional): Максимальная скорость.
+    max_flight_time (float, optional): Максимальное время полета.
+    max_flight_dist (float, optional): Максимальная дистанция полета.
+    payload (float, optional): Полезная нагрузка.
+    battery_capacity (float, optional): Емкость батареи.
+    n_rotors (int, optional): Количество роторов.
+    purchase_date (str, optional): Дата покупки.
+    year (int, optional): Год выпуска.
+
+    Методы:
+    __init__(self, serial_number, id=None, model=None, manufacturer=None, max_altitude=None, max_speed=None, max_flight_time=None, max_flight_dist=None, payload=None, battery_capacity=None, n_rotors=None, purchase_date=None, year=None):
+        Инициализирует объект дрона.
+    __str__(self):
+        Возвращает строковое представление объекта дрона.
+    __hash__(self):
+        Возвращает хэш объекта дрона.
+    __eq__(self, other):
+        Сравнивает два объекта дрона на равенство.
+    global_position_control(self, lat=None, lon=None, alt=None):
+        Управляет дроном, используя глобальное позиционирование.
+    request_sdk_permission_control(self):
+        Запрашивает разрешение на управление через SDK.
+    takeoff(self):
+        Инициирует взлет дрона.
+    land(self):
+        Инициирует посадку дрона.
+    arm(self):
+        Инициирует армирование дрона.
+    """
+
+    def __init__(self, serial_number, id=None, model=None, manufacturer=None, max_altitude=None, max_speed=None, max_flight_time=None, max_flight_dist=None, payload=None, battery_capacity=None, n_rotors=None, purchase_date=None, year=None):
+        """
+        Инициализирует объект дрона.
+
+        Аргументы:
+        serial_number (str): Серийный номер дрона.
+        id (int, optional): Идентификатор дрона.
+        model (str, optional): Модель дрона.
+        manufacturer (str, optional): Производитель дрона.
+        max_altitude (float, optional): Максимальная высота полета.
+        max_speed (float, optional): Максимальная скорость.
+        max_flight_time (float, optional): Максимальное время полета.
+        max_flight_dist (float, optional): Максимальная дистанция полета.
+        payload (float, optional): Полезная нагрузка.
+        battery_capacity (float, optional): Емкость батареи.
+        n_rotors (int, optional): Количество роторов.
+        purchase_date (str, optional): Дата покупки.
+        year (int, optional): Год выпуска.
+        """
+
+    def __str__(self):
+        """
+        Возвращает строковое представление объекта дрона.
+
+        Возвращаемое значение:
+        str: Строковое представление объекта дрона.
+        """
+
+    def __hash__(self):
+        """
+        Возвращает хэш объекта дрона.
+
+        Возвращаемое значение:
+        int: Хэш объекта дрона.
+        """
+
+    def __eq__(self, other):
+        """
+        Сравнивает два объекта дрона на равенство.
+
+        Аргументы:
+        other (Drone): Другой объект дрона для сравнения.
+
+        Возвращаемое значение:
+        bool: True, если объекты равны, иначе False.
+        """
+
+    def global_position_control(self, lat=None, lon=None, alt=None):
+        """
+        Управляет дроном, используя глобальное позиционирование.
+
+        Аргументы:
+        lat (float, optional): Широта.
+        lon (float, optional): Долгота.
+        alt (float, optional): Высота.
+
+        Возвращаемое значение:
+        response (str): Ответ от дрона после выполнения команды.
+        """
+
+    def request_sdk_permission_control(self):
+        """
+        Запрашивает разрешение на управление через SDK.
+
+        Возвращаемое значение:
+        str: Ответ от дрона после запроса.
+        """
+
+    def takeoff(self):
+        """
+        Инициирует взлет дрона.
+
+        Возвращаемое значение:
+        str: Ответ от дрона после взлета.
+        """
+
+    def land(self):
+        """
+        Инициирует посадку дрона.
+
+        Возвращаемое значение:
+        str: Ответ от дрона после посадки.
+        """
+
+    def arm(self):
+        """
+        Инициирует армирование дрона.
+
+        Возвращаемое значение:
+        str: Ответ от дрона после армирования.
+        """
+
+
+

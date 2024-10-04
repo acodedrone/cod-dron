@@ -1,0 +1,196 @@
+
+class IDroneRepository(ABC):
+    """
+    Абстрактный класс, представляющий репозиторий для управления дронами.
+
+    Методы:
+    __init__(self, conn):
+        Инициализирует репозиторий с подключением к базе данных.
+    add_drone(self, drone: Drone):
+        Абстрактный метод для добавления дрона.
+    remove_drone(self, drone: Drone):
+        Абстрактный метод для удаления дрона.
+    get_drone_sn(self, drone: Drone):
+        Абстрактный метод для получения дрона по серийному номеру.
+    get_drone_id(self, drone_id: int):
+        Абстрактный метод для получения дрона по идентификатору.
+    get_drones(self):
+        Абстрактный метод для получения списка всех дронов.
+    update_drone(self, drone: Drone, update_data: dict):
+        Абстрактный метод для обновления данных дрона.
+    """
+    def __init__(self, conn):
+        """
+        Инициализирует репозиторий с подключением к базе данных.
+
+        Аргументы:
+        conn: Подключение к базе данных.
+        """
+
+
+class SQLiteIDroneRepository(IDroneRepository):
+    """
+    Реализация репозитория для управления дронами с использованием SQLite.
+
+    Методы:
+    add_drone(self, drone: Drone):
+        Добавляет дрон в базу данных SQLite.
+    remove_drone(self, drone: Drone):
+        Удаляет дрон из базы данных SQLite.
+    get_drone_sn(self, drone: Drone):
+        Получает дрон по серийному номеру из базы данных SQLite.
+    get_drone_id(self, drone_id: int):
+        Получает дрон по идентификатору из базы данных SQLite.
+    get_drones(self):
+        Получает список всех дронов из базы данных SQLite.
+    update_drone(self, drone: Drone, update_data: dict):
+        Обновляет данные дрона в базе данных SQLite.
+    """
+    def add_drone(self, drone: Drone):
+        """
+        Добавляет дрон в базу данных SQLite.
+
+        Аргументы:
+        drone (Drone): Объект дрона для добавления.
+
+        Возвращаемое значение:
+        None
+        """
+
+    def remove_drone(self, drone: Drone):
+        """
+        Удаляет дрон из базы данных SQLite.
+
+        Аргументы:
+        drone (Drone): Объект дрона для удаления.
+
+        Возвращаемое значение:
+        None
+        """
+
+    def get_drone_sn(self, drone: Drone):
+        """
+        Получает дрон по серийному номеру из базы данных SQLite.
+
+        Аргументы:
+        drone (Drone): Объект дрона для поиска по серийному номеру.
+
+        Возвращаемое значение:
+        Drone: Объект дрона, если найден, иначе None.
+        """
+
+    def get_drone_id(self, drone_id: int):
+        """
+        Получает дрон по идентификатору из базы данных SQLite.
+
+        Аргументы:
+        drone_id (int): Идентификатор дрона для поиска.
+
+        Возвращаемое значение:
+        Drone: Объект дрона, если найден, иначе None.
+        """
+
+    def get_drones(self):
+        """
+        Получает список всех дронов из базы данных SQLite.
+
+        Возвращаемое значение:
+        list: Список объектов дронов.
+        """
+
+    def update_drone(self, drone: Drone, update_data: dict):
+        """
+        Обновляет данные дрона в базе данных SQLite.
+
+        Аргументы:
+        drone (Drone): Объект дрона для обновления.
+        update_data (dict): Данные для обновления.
+
+        Возвращаемое значение:
+        None
+        """
+
+
+class back4appIDroneRepository(IDroneRepository):
+    """
+    Реализация репозитория для управления дронами с использованием back4app.
+
+    Методы:
+    add_drone(self, drone: Drone):
+        Добавляет дрон в базу данных back4app.
+    remove_drone(self, drone: Drone):
+        Удаляет дрон из базы данных back4app.
+    get_drone_sn(self, drone: Drone):
+        Получает дрон по серийному номеру из базы данных back4app.
+    get_drone_id(self, drone_id: int):
+        Получает дрон по идентификатору из базы данных back4app.
+    get_drones(self):
+        Получает список всех дронов из базы данных back4app.
+    update_drone(self, drone: Drone, update_data: dict):
+        Обновляет данные дрона в базе данных back4app.
+    """
+    def add_drone(self, drone: Drone):
+        """
+        Добавляет дрон в базу данных back4app.
+
+        Аргументы:
+        drone (Drone): Объект дрона для добавления.
+
+        Возвращаемое значение:
+        None
+        """
+
+    def remove_drone(self, drone: Drone):
+        """
+        Удаляет дрон из базы данных back4app.
+
+        Аргументы:
+        drone (Drone): Объект дрона для удаления.
+
+        Возвращаемое значение:
+        None
+        """
+
+    def get_drone_sn(self, drone: Drone):
+        """
+        Получает дрон по серийному номеру из базы данных back4app.
+
+        Аргументы:
+        drone (Drone): Объект дрона для поиска по серийному номеру.
+
+        Возвращаемое значение:
+        None
+        """
+
+    def get_drone_id(self, drone_id: int):
+        """
+        Получает дрон по идентификатору из базы данных back4app.
+
+        Аргументы:
+        drone_id (int): Идентификатор дрона для поиска.
+
+        Возвращаемое значение:
+        None
+        """
+
+    def get_drones(self):
+        """
+        Получает список всех дронов из базы данных back4app.
+
+        Возвращаемое значение:
+        None
+        """
+
+    def update_drone(self, drone: Drone, update_data: dict):
+        """
+        Обновляет данные дрона в базе данных back4app.
+
+        Аргументы:
+        drone (Drone): Объект дрона для обновления.
+        update_data (dict): Данные для обновления.
+
+        Возвращаемое значение:
+        None
+        """
+
+

@@ -1,0 +1,140 @@
+
+class QueryBuilder:
+    """
+    Класс для построения SQL-запросов.
+
+    Атрибуты:
+    __query_parts (dict): Словарь для хранения частей запроса.
+    __params (list): Список параметров для запроса.
+
+    Методы:
+    __init__(self):
+        Инициализирует объект QueryBuilder.
+    insert_into(self, table: str, columns: list):
+        Создает часть запроса INSERT INTO.
+    values(self, *columns: list):
+        Добавляет значения для INSERT INTO.
+    get_params(self):
+        Возвращает список параметров.
+    select(self, table: str, columns="*"):
+        Создает часть запроса SELECT.
+    update(self, table: str, columns: dict):
+        Создает часть запроса UPDATE.
+    where(self, condition: str, params: None):
+        Создает часть запроса WHERE.
+    delete(self, table: str, drone_id=None):
+        Создает часть запроса DELETE.
+    order_by(self, columns: list, order: str = "ASC"):
+        Создает часть запроса ORDER BY.
+    build(self):
+        Окончательная сборка SQL-запроса.
+    """
+    def __init__(self):
+        """
+        Инициализирует объект QueryBuilder.
+
+        Аргументы:
+        None
+        """
+
+    def insert_into(self, table: str, columns: list):
+        """
+        Создает часть запроса INSERT INTO.
+
+        Аргументы:
+        table (str): Название таблицы.
+        columns (list): Список столбцов.
+
+        Возвращаемое значение:
+        self: Объект QueryBuilder.
+        """
+
+    def values(self, *columns: list):
+        """
+        Добавляет значения для INSERT INTO.
+
+        Аргументы:
+        columns (list): Список значений.
+
+        Возвращаемое значение:
+        self: Объект QueryBuilder.
+        """
+
+    def get_params(self):
+        """
+        Возвращает список параметров.
+
+        Возвращаемое значение:
+        list: Список параметров.
+        """
+
+    def select(self, table: str, columns="*"):
+        """
+        Создает часть запроса SELECT.
+
+        Аргументы:
+        table (str): Название таблицы.
+        columns (str): Список столбцов (по умолчанию "*").
+
+        Возвращаемое значение:
+        self: Объект QueryBuilder.
+        """
+
+    def update(self, table: str, columns: dict):
+        """
+        Создает часть запроса UPDATE.
+
+        Аргументы:
+        table (str): Название таблицы.
+        columns (dict): Словарь столбцов и значений.
+
+        Возвращаемое значение:
+        self: Объект QueryBuilder.
+        """
+
+    def where(self, condition: str, params: None):
+        """
+        Создает часть запроса WHERE.
+
+        Аргументы:
+        condition (str): Условие.
+        params (list): Список параметров.
+
+        Возвращаемое значение:
+        self: Объект QueryBuilder.
+        """
+
+    def delete(self, table: str, drone_id=None):
+        """
+        Создает часть запроса DELETE.
+
+        Аргументы:
+        table (str): Название таблицы.
+        drone_id (int, optional): Идентификатор дрона.
+
+        Возвращаемое значение:
+        self: Объект QueryBuilder.
+        """
+
+    def order_by(self, columns: list, order: str = "ASC"):
+        """
+        Создает часть запроса ORDER BY.
+
+        Аргументы:
+        columns (list): Список столбцов.
+        order (str): Порядок сортировки (по умолчанию "ASC").
+
+        Возвращаемое значение:
+        self: Объект QueryBuilder.
+        """
+
+    def build(self):
+        """
+        Окончательная сборка SQL-запроса.
+
+        Возвращаемое значение:
+        str: Сформированный SQL-запрос.
+        """
+
+
+
